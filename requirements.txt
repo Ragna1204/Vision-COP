@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+torch
+torchvision
+pillow
+faiss-cpu
+openai-clip
+imagehash
+exifread
+numpy
+opencv-python
+sqlalchemy
+python-multipart
