@@ -1,13 +1,6 @@
-fastapi
-uvicorn[standard]
+streamlit
 torch
 torchvision
 pillow
-faiss-cpu
-openai-clip
-imagehash
-exifread
 numpy
-opencv-python
-sqlalchemy
-python-multipart
+scikit-learn

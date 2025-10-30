@@ -1,139 +1,78 @@
-# Vision-COP
-Image Source and Authenticity Engine
+# VisionCOP
+AI Image Similarity Search Engine
 
-An AI-powered image authenticity and reverse search engine built with FastAPI, CLIP embeddings, and FAISS indexing.
+A simple, powerful image search system using ResNet50 embeddings for finding visually similar images - built with Streamlit.
 
 ## Features
 
-- **Content-Based Image Retrieval (CBIR)**: Find visually similar images using CLIP embeddings and FAISS
-- **Image Authenticity Verification**:
-  - SHA256 hashing for tamper detection
-  - Perceptual hashing (phash) for duplicate detection
-  - EXIF metadata extraction
-  - Error Level Analysis (ELA) for manipulation scoring
-- **REST API**: Simple endpoints for image indexing and search
-- **Web Interface**: Upload and search images via browser
-- **SQLite Database**: Metadata storage with SQLAlchemy
-- **Scalable Architecture**: Modular design for easy extension
+- **ResNet50 Image Embeddings**: High-quality image feature extraction
+- **Cosine Similarity Search**: Fast, accurate similarity matching
+- **Streamlit Web Interface**: Drag-and-drop upload with instant results
+- **Pickle-based Storage**: Simple, reliable embeddings storage
+- **Corel-10K Integration**: Ready for large dataset testing
 
 ## Project Structure
 
 ```
 visioncop/
-├── app/
-│   ├── __init__.py
-│   ├── main.py          # FastAPI application with endpoints
-│   ├── cbir.py          # CLIP embeddings and FAISS indexing
-│   ├── verification.py  # Image hashing and forensic analysis
-│   ├── database.py      # SQLite database operations
-│   ├── models/          # AI/ML models (placeholder)
-│   └── utils/
-│       ├── image_utils.py  # Processing and analysis utilities
-│       └── __init__.py
-├── data/
-│   ├── images/          # Indexed image files
-│   └── index/           # FAISS index files
-├── frontend/
-│   ├── index.html       # Web UI
-│   ├── style.css        # Styling
-│   └── script.js        # JavaScript for API calls
-├── tests/
-│   ├── test_api.py      # API endpoint tests
-│   └── test_embeddings.py # CLIP/FAISS tests
-├── requirements.txt     # Python dependencies
-└── Dockerfile          # Docker configuration
+├── app.py              # 🚀 Main Streamlit application
+├── models.py           # 🤖 ResNet50 model for embeddings
+├── database.py         # 💾 Pickle-based storage (legacy)
+├── static/             # 📱 Static files (unused in Streamlit)
+├── data/               # 🖼️ Data storage
+│   └── images/         # Stored image files
+├── requirements.txt    # 📦 Python dependencies
+└── run.py            # ▶️ Easy startup script
 ```
 
-## Installation
+## Quick Start
 
-### Option 1: Virtual Environment (Recommended)
-
-1. Create virtual environment:
-   ```bash
-   python -m venv venv
-   ```
-
-2. Activate virtual environment:
-   - Windows: `venv\Scripts\activate`
-   - Linux/Mac: `source venv/bin/activate`
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Option 2: Docker
-
-1. Build the Docker image:
-   ```bash
-   docker build -t visioncop .
-   ```
-
-2. Run the container:
-   ```bash
-   docker run -p 8000:8000 visioncop
-   ```
-
-## Usage
-
-### Start the Server
-
-1. Run the FastAPI server:
-   ```bash
-   uvicorn visioncop.app.main:app --reload
-   ```
-
-2. Open the web interface by navigating to `http://localhost:8000/frontend/index.html` in your browser
-
-### API Endpoints
-
-- `POST /index`: Index an image for search
-  - Upload an image file to index it in the system
-  - Returns: Confirmation message
-
-- `POST /search`: Search for similar images
-  - Upload a query image
-  - Returns: List of similar images with metadata
-
-### Web Interface
-
-1. **Index Images**: Use the "Index Image" section to add images to the search database
-2. **Search Images**: Use the "Search Similar Images" section to find visually similar images
-
-### Development
-
-Run tests:
+### 1. Install Dependencies
 ```bash
-pytest visioncop/tests/
+pip install -r requirements.txt
 ```
 
-## Dependencies
+### 2. Run the Application
+```bash
+python run.py
+```
+Or directly:
+```bash
+streamlit run app.py
+```
 
-- **FastAPI**: Modern Python web framework
-- **CLIP**: Vision-language model for image embeddings
-- **FAISS**: Efficient similarity search and clustering
-- **Pillow**: Image processing
-- **OpenCV**: Computer vision tasks
-- **SQLAlchemy**: Database ORM
-- **imagehash**: Perceptual hashing
-- **exifread**: EXIF metadata extraction
+### 3. Open Web Interface
+Streamlit will automatically open `http://localhost:8501` in your browser
 
-## Future Enhancements
+### 4. (Optional) Load Corel-10K Images
+The Corel-10K images you added to `visioncop/data/images/` will be automatically available for search once you upload and index any query image.
 
-- **Blockchain Integration**: SHA256 hashes for immutability
-- **Advanced Forensic Analysis**: More sophisticated manipulation detection
-- **Machine Learning Models**: Auto-tagging and classification
-- **WebSocket Support**: Real-time search updates
-- **Multi-modal Search**: Text-to-image and image-to-text
+## How to Use
 
-## Contributing
+1. **Upload Images**: Use the "Index Images" section to add images to the search database
+2. **Search**: Upload a query image to find similar ones in the database
+3. **Results**: View similarity scores and ranked results instantly
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
+## API Endpoints
 
-## License
+- `POST /upload` - Index new images
+- `POST /search` - Find similar images
+- `GET /status` - System statistics
+- `GET /` - Web interface
+- `GET /images/{filename}` - Access stored images
 
-This project is licensed under the MIT License.
+## Tech Stack
+
+- **Backend**: FastAPI, Python
+- **AI Model**: ResNet50 (PyTorch)
+- **Database**: SQLite
+- **Frontend**: Vanilla HTML/CSS/JS
+- **Similarity**: Cosine similarity
+
+## Next Steps
+
+- Add image metadata extraction
+- Implement batch uploads
+- Add result pagination
+- Create user accounts/sessions
+- Add search filters and categories

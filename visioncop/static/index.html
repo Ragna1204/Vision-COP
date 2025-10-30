@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionCOP - AI Image Search</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VisionCOP</h1>
+            <p>AI-Powered Image Similarity Search</p>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <h2>Index Images</h2>
+                <div class="upload-area">
+                    <input type="file" id="uploadFile" accept="image/*" multiple>
+                    <div class="upload-instructions">
+                        <p>Choose images to index for search</p>
+                        <button id="uploadBtn">Upload & Index</button>
+                    </div>
+                </div>
+                <div id="uploadStatus"></div>
+            </section>
+
+            <section class="search-section">
+                <h2>Find Similar Images</h2>
+                <div class="search-area">
+                    <input type="file" id="searchFile" accept="image/*">
+                    <button id="searchBtn">Search</button>
+                </div>
+                <div id="searchStatus"></div>
+                <div id="results"></div>
+            </section>
+
+            <section class="stats-section">
+                <h3>System Statistics</h3>
+                <div id="stats"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
