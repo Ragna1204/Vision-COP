@@ -6,7 +6,9 @@ A simple, powerful image search system using ResNet50 embeddings for finding vis
 ## Features
 
 - **ResNet50 Image Embeddings**: High-quality image feature extraction
-- **Cosine Similarity Search**: Fast, accurate similarity matching
+- **Cosine Similarity Search**: Fast, accurate semantic similarity matching
+- **Perceptual Hashing (pHash)**: Pixel-level authenticity verification for manipulation detection
+- **Dual Analysis**: Semantic similarity + pixel authenticity for comprehensive analysis
 - **Streamlit Web Interface**: Drag-and-drop upload with instant results
 - **Pickle-based Storage**: Simple, reliable embeddings storage
 - **Corel-10K Integration**: Ready for large dataset testing
@@ -49,9 +51,16 @@ The Corel-10K images you added to `visioncop/data/images/` will be automatically
 
 ## How to Use
 
-1. **Upload Images**: Use the "Index Images" section to add images to the search database
-2. **Search**: Upload a query image to find similar ones in the database
-3. **Results**: View similarity scores and ranked results instantly
+1. **Index Images**: Use the "📤 Index New Images" tab to add images to the search database
+2. **Search**: Use the "🎯 Find Similar" tab and upload a query image
+3. **Enable Verification**: Check "🔍 Show Authenticity Verification" for pixel-level analysis
+4. **Dual Results**: See both semantic similarity AND pixel authenticity scores
+
+### Authenticity Verification Levels
+- ✅ **Authentic**: Identical file or exact copy (Distance = 0)
+- ⚠️ **High Similarity**: Re-used, resized, or re-compressed (Distance ≤ 8)
+- 🚩 **Potential Manipulation**: Cropped, filtered, or minor edits (Distance ≤ 20)
+- ℹ️ **Different Image**: Major changes or different content (Distance > 20)
 
 ## API Endpoints
 

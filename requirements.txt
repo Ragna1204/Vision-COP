@@ -4,3 +4,5 @@ torchvision
 pillow
 numpy
 scikit-learn
+imagehash
+Pillow

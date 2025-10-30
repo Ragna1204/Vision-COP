@@ -6,6 +6,7 @@ import pickle
 import glob
 
 from visioncop.models import get_image_embedding
+from visioncop.verification import verify_image_authenticity, get_verification_status
 
 # Paths
 DATA_DIR = "visioncop/data/images"
@@ -105,6 +106,9 @@ def main():
                             if similar_results and len(similar_results) > 0:
                                 st.success(f"Found {len(similar_results)} similar images!")
 
+                                # Toggle for detailed verification
+                                show_verification = st.checkbox("🔍 Show Authenticity Verification (Pixel-level Analysis)")
+
                                 # Display results in a grid
                                 cols = st.columns(3)
                                 for i, (filename, similarity) in enumerate(similar_results):
@@ -115,14 +119,63 @@ def main():
                                         if os.path.exists(file_path):
                                             try:
                                                 img = Image.open(file_path)
-                                                st.image(img, caption=f"{filename}\nSimilarity: {(similarity*100):.1f}%",
-                                                       width=150)
-                                            except Exception:
+
+                                                # Build caption with similarity
+                                                caption = f"{filename}\n🎯 Similarity: {(similarity*100):.1f}%"
+
+                                                # Add verification if requested
+                                                if show_verification:
+                                                    # Perform pixel-level verification
+                                                    distance, verification_msg = verify_image_authenticity(temp_path, file_path)
+                                                    status, color = get_verification_status(distance)
+
+                                                    if distance >= 0:
+                                                        caption += f"\n🔒 Authenticity: {status} (Distance: {distance})"
+                                                        # Add color indicator
+                                                        if color == "green":
+                                                            st.success(status, icon="✅")
+                                                        elif color == "orange":
+                                                            st.warning(status, icon="⚠️")
+                                                        elif color == "red":
+                                                            st.error(status, icon="🚩")
+                                                        else:
+                                                            st.info(status, icon="ℹ️")
+
+                                                st.image(img, caption=caption, width=150)
+
+                                                # Show detailed verification message if enabled
+                                                if show_verification and distance >= 0:
+                                                    st.caption(f"💡 {verification_msg}")
+
+                                            except Exception as e:
                                                 st.write(f"🖼️ {filename}")
                                                 st.write(f"Similarity: {(similarity*100):.1f}%")
+
+                                                if show_verification:
+                                                    try:
+                                                        distance, verification_msg = verify_image_authenticity(temp_path, file_path)
+                                                        status, color = get_verification_status(distance)
+                                                        st.caption(f"🔒 {status}: {verification_msg}")
+                                                    except:
+                                                        st.caption("🔒 Verification failed")
                                         else:
                                             st.write(f"🖼️ {filename}")
                                             st.write(f"Similarity: {(similarity*100):.1f}%")
+
+                                # Explanation for verification
+                                if show_verification:
+                                    st.info("""
+                                    🔍 **Authenticity Analysis Explanation:**
+
+                                    🎯 **Semantic Similarity**: How visually similar images look (ResNet50 CNN)
+                                    🔒 **Pixel Authenticity**: Whether pixels match exactly (pHash verification)
+
+                                    - **Authentic**: Identical or exact copy
+                                    - **High Similarity**: Resized/re-compressed version
+                                    - **Potential Manipulation**: Cropped or minor edits detected
+                                    - **Different Image**: Major changes or different content
+                                    """)
+
                             else:
                                 st.warning("No similar images found in the database. Try indexing some images first!")
                         else:
