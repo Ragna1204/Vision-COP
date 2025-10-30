@@ -107,9 +107,78 @@ def main():
                                 st.success(f"Found {len(similar_results)} similar images!")
 
                                 # Toggle for detailed verification
-                                show_verification = st.checkbox("🔍 Show Authenticity Verification (Pixel-level Analysis)")
+                                show_verification = st.checkbox("🔍 Show Authenticity Verification (Comprehensive Analysis)")
+                                verify_all = st.checkbox("🔎 Verify Against ALL Images (Not Just Similar Ones)")
 
-                                # Display results in a grid
+                                # Get all images if verification is enabled
+                                if show_verification and verify_all:
+                                    # Verify against ALL indexed images
+                                    all_verifications = []
+
+                                    # Get list of all indexed images
+                                    for image_file in os.listdir("visioncop/data/images"):
+                                        if image_file.endswith(('.jpg', '.jpeg', '.png')):
+                                            image_path = f"visioncop/data/images/{image_file}"
+                                            try:
+                                                verification = verify_image_authenticity(temp_path, image_path)
+                                                if verification['pixel_distance'] >= 0:  # Successful verification
+                                                    all_verifications.append((image_file, verification))
+                                            except:
+                                                continue
+
+                                    # Sort by pixel distance (most similar first)
+                                    all_verifications.sort(key=lambda x: x[1]['pixel_distance'])
+
+                                    if all_verifications:
+                                        st.markdown("### 🔍 Authenticity Verification Results (All Images)")
+
+                                        # Display top verifications
+                                        cols = st.columns(3)
+                                        for i, (filename, verification) in enumerate(all_verifications[:9]):  # Show top 9
+                                            col_idx = i % 3
+
+                                            with cols[col_idx]:
+                                                file_path = f"visioncop/data/images/{filename}"
+                                                if os.path.exists(file_path):
+                                                    try:
+                                                        img = Image.open(file_path)
+                                                        confidence, color = get_verification_status(verification)
+
+                                                        caption = f"{filename}\n🔒 {confidence}"
+                                                        if verification['pixel_distance'] > 0:
+                                                            caption += f" (Dist: {verification['pixel_distance']})"
+
+                                                        # Add color background based on confidence
+                                                        if color == "#27ae60":
+                                                            st.success(confidence, icon="✅")
+                                                        elif color == "#f39c12":
+                                                            st.warning(confidence, icon="⚠️")
+                                                        elif color == "#e74c3c":
+                                                            st.error(confidence, icon="🚩")
+                                                        else:
+                                                            st.info(confidence, icon="ℹ️")
+
+                                                        st.image(img, caption=caption, width=150)
+
+                                                        # Show metadata issues if any
+                                                        if verification['metadata_issues']:
+                                                            st.caption("📋 Metadata Differences:")
+                                                            for issue in verification['metadata_issues'][:2]:  # Show first 2
+                                                                st.caption(f"• {issue}")
+
+                                                        # Show manipulation flags
+                                                        if verification['manipulation_flags']:
+                                                            st.caption("🚩 Manipulation Indicators:")
+                                                            for flag in verification['manipulation_flags'][:2]:
+                                                                st.caption(f"• {flag}")
+
+                                                    except Exception as e:
+                                                        st.write(f"🖼️ {filename}")
+                                                        status, color = get_verification_status(verification)
+                                                        st.caption(f"🔒 {status}")
+
+                                # Display semantic similarity results
+                                st.markdown("### 🎯 Semantic Similarity Results")
                                 cols = st.columns(3)
                                 for i, (filename, similarity) in enumerate(similar_results):
                                     col_idx = i % 3
@@ -119,65 +188,76 @@ def main():
                                         if os.path.exists(file_path):
                                             try:
                                                 img = Image.open(file_path)
-
-                                                # Build caption with similarity
                                                 caption = f"{filename}\n🎯 Similarity: {(similarity*100):.1f}%"
 
-                                                # Add verification if requested
-                                                if show_verification:
-                                                    # Perform pixel-level verification
-                                                    distance, verification_msg = verify_image_authenticity(temp_path, file_path)
-                                                    status, color = get_verification_status(distance)
-
-                                                    if distance >= 0:
-                                                        caption += f"\n🔒 Authenticity: {status} (Distance: {distance})"
-                                                        # Add color indicator
-                                                        if color == "green":
-                                                            st.success(status, icon="✅")
-                                                        elif color == "orange":
-                                                            st.warning(status, icon="⚠️")
-                                                        elif color == "red":
-                                                            st.error(status, icon="🚩")
-                                                        else:
-                                                            st.info(status, icon="ℹ️")
-
                                                 st.image(img, caption=caption, width=150)
-
-                                                # Show detailed verification message if enabled
-                                                if show_verification and distance >= 0:
-                                                    st.caption(f"💡 {verification_msg}")
 
                                             except Exception as e:
                                                 st.write(f"🖼️ {filename}")
                                                 st.write(f"Similarity: {(similarity*100):.1f}%")
-
-                                                if show_verification:
-                                                    try:
-                                                        distance, verification_msg = verify_image_authenticity(temp_path, file_path)
-                                                        status, color = get_verification_status(distance)
-                                                        st.caption(f"🔒 {status}: {verification_msg}")
-                                                    except:
-                                                        st.caption("🔒 Verification failed")
                                         else:
                                             st.write(f"🖼️ {filename}")
                                             st.write(f"Similarity: {(similarity*100):.1f}%")
 
-                                # Explanation for verification
+                                # Detailed verification for similar images
+                                if show_verification and not verify_all:
+                                    st.markdown("### 🔍 Detailed Verification (Similar Images Only)")
+                                    for filename, similarity in similar_results[:3]:  # Show detailed for top 3
+                                        file_path = f"visioncop/data/images/{filename}"
+
+                                        try:
+                                            verification = verify_image_authenticity(temp_path, file_path)
+
+                                            col1, col2 = st.columns([1, 3])
+                                            with col1:
+                                                img = Image.open(file_path)
+                                                st.image(img, width=100)
+
+                                            with col2:
+                                                confidence, color = get_verification_status(verification)
+                                                st.subheader(f"{filename} - {confidence}")
+
+                                                st.metric("Semantic Similarity", f"{(similarity*100):.1f}%")
+                                                st.metric("Pixel Distance", verification['pixel_distance'])
+
+                                                if verification['metadata_issues']:
+                                                    st.write("📋 **Metadata Differences:**")
+                                                    for issue in verification['metadata_issues'][:3]:
+                                                        st.write(f"• {issue}")
+
+                                                if verification['manipulation_flags']:
+                                                    st.write("🚩 **Manipulation Indicators:**")
+                                                    for flag in verification['manipulation_flags'][:3]:
+                                                        st.write(f"• {flag}")
+
+                                        except Exception as e:
+                                            st.write(f"Error verifying {filename}: {e}")
+
+                                # Comprehensive explanation
                                 if show_verification:
-                                    st.info("""
-                                    🔍 **Authenticity Analysis Explanation:**
+                                    with st.expander("🔍 Verification Analysis Explanation"):
+                                        st.markdown("""
+                                        **Analysis Methods:**
 
-                                    🎯 **Semantic Similarity**: How visually similar images look (ResNet50 CNN)
-                                    🔒 **Pixel Authenticity**: Whether pixels match exactly (pHash verification)
+                                        🎯 **Semantic Similarity (ResNet50)**: How visually similar images appear
+                                        🔐 **Pixel Authenticity (pHash)**: Exact pixel pattern matching
+                                        📋 **Metadata Comparison**: EXIF data validation
+                                        🚩 **Manipulation Detection**: Signs of editing/tampering
 
-                                    - **Authentic**: Identical or exact copy
-                                    - **High Similarity**: Resized/re-compressed version
-                                    - **Potential Manipulation**: Cropped or minor edits detected
-                                    - **Different Image**: Major changes or different content
-                                    """)
+                                        **Status Levels:**
+                                        - 🟢 **Perfectly Authentic**: Exact match with matching metadata
+                                        - 🟡 **Likely Authentic/Reused**: Similar pixels, no major issues
+                                        - 🔴 **Definitely Manipulated**: High manipulation score detected
+                                        - 🔘 **Metadata Mismatch**: Metadata doesn't match original
+                                        - ⚪ **Different Image**: Completely different content
+                                        """)
 
                             else:
                                 st.warning("No similar images found in the database. Try indexing some images first!")
+
+                                # Still offer verification if requested
+                                if show_verification:
+                                    st.info("No semantic matches found, but we can still check authenticity against all indexed images.")
                         else:
                             st.error("Failed to process the uploaded image. Please try again.")
 

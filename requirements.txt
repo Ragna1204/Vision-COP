@@ -5,4 +5,4 @@ pillow
 numpy
 scikit-learn
 imagehash
-Pillow
+exifread

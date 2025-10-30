@@ -5,13 +5,15 @@ A simple, powerful image search system using ResNet50 embeddings for finding vis
 
 ## Features
 
-- **ResNet50 Image Embeddings**: High-quality image feature extraction
-- **Cosine Similarity Search**: Fast, accurate semantic similarity matching
-- **Perceptual Hashing (pHash)**: Pixel-level authenticity verification for manipulation detection
-- **Dual Analysis**: Semantic similarity + pixel authenticity for comprehensive analysis
-- **Streamlit Web Interface**: Drag-and-drop upload with instant results
-- **Pickle-based Storage**: Simple, reliable embeddings storage
-- **Corel-10K Integration**: Ready for large dataset testing
+- **ResNet50 Image Embeddings**: High-quality image feature extraction for semantic similarity
+- **Cosine Similarity Search**: Fast, accurate visual similarity matching
+- **Perceptual Hashing (pHash)**: Pixel-level authenticity verification with Hamming distance
+- **EXIF Metadata Analysis**: Detects mismatched image tags and metadata inconsistencies
+- **Manipulation Detection**: Identifies signs of editing, filtering, and digital tampering
+- **Comprehensive Authenticity Verification**: Multi-layered analysis for manipulation detection
+- **Streamlit Web Interface**: Interactive drag-and-drop with detailed verification reports
+- ** верификация по всем изображениям**: Option to verify query against ALL indexed images
+- **Color-coded Results**: Green, orange, red indicators for authenticity confidence levels
 
 ## Project Structure
 
@@ -56,11 +58,29 @@ The Corel-10K images you added to `visioncop/data/images/` will be automatically
 3. **Enable Verification**: Check "🔍 Show Authenticity Verification" for pixel-level analysis
 4. **Dual Results**: See both semantic similarity AND pixel authenticity scores
 
-### Authenticity Verification Levels
-- ✅ **Authentic**: Identical file or exact copy (Distance = 0)
-- ⚠️ **High Similarity**: Re-used, resized, or re-compressed (Distance ≤ 8)
-- 🚩 **Potential Manipulation**: Cropped, filtered, or minor edits (Distance ≤ 20)
-- ℹ️ **Different Image**: Major changes or different content (Distance > 20)
+### Authenticity Verification Features
+
+**Multi-Layer Analysis:**
+- **🎯 Semantic Similarity**: Visual appearance matching (ResNet50 CNN)
+- **🔐 Pixel Authenticity**: Exact pixel pattern matching (pHash/Hamming Distance)
+- **📋 Metadata Validation**: EXIF data consistency checks
+- **🚩 Manipulation Detection**: Signs of digital editing/artifacts
+
+**Verification Levels:**
+- ✅ **Perfectly Authentic**: Exact match with matching metadata
+- 🟢 **Authentic/Authentic Copy**: Near-identical pixels, authentic source
+- 🟡 **Likely Authentic/Reused**: High pixel similarity, possibly different context
+- 🔴 **Definitely Manipulated**: High manipulation score, clear editing signs
+- 🔘 **Metadata Mismatch**: Metadata differs from original (tampered EXIF)
+- ⚪ **Different Image**: Completely different content
+
+**Detection Capabilities:**
+- **Manipulated optics**: Warmth/saturation modifications (your edited image)
+- **Re-used visuals**: Content copied between contexts
+- **Mismatched tags**: Inconsistent metadata across similar images
+- **Deceptive visuals**: Edited images presented as original content
+- **Compression artifacts**: Multiple save/lossy compression detection
+- **Brightness anomalies**: Unusual brightness patterns from cloning/retouching
 
 ## API Endpoints
 
