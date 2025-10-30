@@ -48,8 +48,28 @@ streamlit run app.py
 ### 3. Open Web Interface
 Streamlit will automatically open `http://localhost:8501` in your browser
 
-### 4. (Optional) Load Corel-10K Images
-The Corel-10K images you added to `visioncop/data/images/` will be automatically available for search once you upload and index any query image.
+### 4. Load MIRFLICKR Dataset (Recommended)
+```bash
+python run.py --load-mirflickr
+```
+
+**Requirements:**
+1. Download MIRFLICKR dataset ZIP file
+2. Rename it to `mirflickr.zip`
+3. Place it in the project root directory
+4. Run the command above
+
+MIRFLICKR provides 25,000 labeled images from Flickr for research on image search and tagging. The loader will automatically:
+- Extract images from ZIP file
+- Process and index first 200 images (configurable)
+- Load labels/metadata for enhanced verification
+- Store everything in the database for search
+
+### 5. (Alternative) Load Corel-10K Images
+```bash
+python run.py --load-corel10k
+```
+Generates synthetic Corel-style images for testing (deprecated - use MIRFLICKR instead)
 
 ## How to Use
 

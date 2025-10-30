@@ -15,6 +15,7 @@ def init_database():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # Create initial table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS images (
             id INTEGER PRIMARY KEY,
@@ -25,10 +26,17 @@ def init_database():
         )
     ''')
 
+    # Add metadata column if it doesn't exist (migration)
+    try:
+        cursor.execute("ALTER TABLE images ADD COLUMN metadata TEXT")
+    except sqlite3.OperationalError:
+        # Column already exists
+        pass
+
     conn.commit()
     conn.close()
 
-def add_image(filename, embedding):
+def add_image(filename, embedding, metadata=None):
     """Add an image and its embedding to the database."""
     try:
         conn = sqlite3.connect(DB_PATH)
@@ -37,10 +45,13 @@ def add_image(filename, embedding):
         # Convert embedding to bytes for storage
         embedding_bytes = embedding.tobytes() if embedding is not None else None
 
+        # Convert metadata to JSON string
+        metadata_json = json.dumps(metadata) if metadata else None
+
         cursor.execute('''
-            INSERT OR REPLACE INTO images (filename, path, embedding, upload_date)
-            VALUES (?, ?, ?, ?)
-        ''', (filename, f'{DATA_PATH}/{filename}', embedding_bytes, datetime.now().isoformat()))
+            INSERT OR REPLACE INTO images (filename, path, embedding, upload_date, metadata)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (filename, f'{DATA_PATH}/{filename}', embedding_bytes, datetime.now().isoformat(), metadata_json))
 
         conn.commit()
         conn.close()
